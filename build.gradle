@@ -1,0 +1,57 @@
+// Плагины проекта
+plugins {
+    id 'java'
+    id "io.freefair.lombok" version "8.13.1"  // Генерация boilerplate-кода через Lombok
+}
+
+// Настройки проекта
+group 'ru.netology'
+version '1.0-SNAPSHOT'
+
+// Настройки Java
+sourceCompatibility = 11  // Версия Java для компиляции
+compileJava.options.encoding = "UTF-8"  // Кодировка исходников
+compileTestJava.options.encoding = "UTF-8"  // Кодировка тестов
+
+// Репозитории для зависимостей
+repositories {
+    mavenCentral()  // Основной репозиторий Maven
+}
+
+// Зависимости проекта
+dependencies {
+    // Основные зависимости
+    implementation 'org.projectlombok:lombok:1.18.30'  // Lombok для основного кода
+    annotationProcessor 'org.projectlombok:lombok:1.18.30'  // Обработка аннотаций Lombok
+
+    // Тестовые зависимости
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.0'  // JUnit 5 для тестов
+    testImplementation 'com.github.javafaker:javafaker:1.0.2'  // Генерация тестовых данных
+    testImplementation 'commons-dbutils:commons-dbutils:1.7'  // Утилиты для работы с БД
+    testImplementation 'com.codeborne:selenide:6.19.1'  // Автотесты через Selenide
+    testImplementation 'io.qameta.allure:allure-selenide:2.13.3'  // Интеграция Allure + Selenide
+    testImplementation 'io.rest-assured:rest-assured:5.4.0'  // Тестирование REST API
+
+    // Драйверы БД
+    testImplementation 'mysql:mysql-connector-java:8.0.33'  // Драйвер MySQL
+    testImplementation 'org.postgresql:postgresql:42.7.3'  // Драйвер PostgreSQL
+
+    // Пуллинг соединений с БД
+    testImplementation 'com.zaxxer:HikariCP:5.1.0'  // Пул соединений для БД
+}
+
+// Конфигурация тестов
+test {
+    useJUnitPlatform()  // Использование JUnit 5
+
+    // Системные свойства для Selenide
+    systemProperty 'selenide.headless', System.getProperty('selenide.headless')  // Режим без GUI
+
+    // Настройки подключения к БД (значения по умолчанию)
+    systemProperty 'db.url', System.getProperty('db.url', "jdbc:mysql://localhost:3306/app")  // URL MySQL по умолчанию
+    systemProperty 'db.postgres.url', System.getProperty('db.postgres.url', "jdbc:postgresql://localhost:5432/app")  // URL PostgreSQL по умолчанию
+
+    // Настройки Chrome
+    systemProperty 'chromeoptions.prefs', System.getProperty('chromeoptions.prefs',
+            "profile.password_manager_leak_detection=false")  // Отключение сохранения паролей в Chrome
+}
