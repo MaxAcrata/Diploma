@@ -18,8 +18,8 @@ public class CreditPaySqlRequestTest extends TestBaseUI {
     private final SQL.DbType currentDb = DbConfig.getDbType(); // определяем текущую БД
 
     @BeforeEach
-    void openPayForm() {
-        mainPage.openPaymentForm();
+    void openCreditForm() {
+        mainPage.openCreditForm();
     }
 
     /**
