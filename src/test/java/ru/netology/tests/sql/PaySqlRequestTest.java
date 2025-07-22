@@ -19,8 +19,8 @@ public class PaySqlRequestTest extends TestBaseUI {
     private final SQL.DbType currentDb = DbConfig.getDbType(); // определяем текущую БД
 
     @BeforeEach
-    void openCreditForm() {
-        mainPage.openCreditForm();
+    void openPaymentForm() {
+        mainPage.openPaymentForm();
     }
 
     /**
@@ -61,7 +61,7 @@ public class PaySqlRequestTest extends TestBaseUI {
      * Ожидаемый статус (APPROVED или DECLINED)
      * ип БД, с которой происходит проверка (MySQL или Postgres)
      */
-    private void verifyCreditRequestStatus(String expectedStatus, SQL.DbType dbType) {
+    private void verifyPayRequestStatus(String expectedStatus, SQL.DbType dbType) {
         String actual = SQL.getCardStatusForPayment(dbType);
         assertEquals(expectedStatus, actual,
                 "Ожидался статус: " + expectedStatus + ", но был: " + actual + " в БД: " + dbType);
