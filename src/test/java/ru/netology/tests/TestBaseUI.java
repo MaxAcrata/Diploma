@@ -1,5 +1,6 @@
 package ru.netology.tests;
 
+import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.logevents.SelenideLogger;
 import io.qameta.allure.selenide.AllureSelenide;
 import org.junit.jupiter.api.*;
@@ -15,21 +16,26 @@ import static com.codeborne.selenide.Selenide.*;
  * - Настройка тестового окружения
  */
 public class TestBaseUI {
-
-    /**
-     * Инициализация Allure перед всеми тестами.
-     * Добавляет возможность сбора подробной информации о выполнении тестов.
-     */
     @BeforeAll
-    static void setUpAllureReporting() {
+    static void setUpAll() {
+        // Конфигурация Selenide (автоматически управляет драйверами)
+        Configuration.browser = "chrome";
+        Configuration.headless = Boolean.parseBoolean(System.getProperty("selenide.headless", "false"));
+        Configuration.browserSize = System.getProperty("selenide.browserSize", "1366x768");
+        Configuration.timeout = 10000;
+        Configuration.pageLoadTimeout = 15000;
+
+        // Отключаем автоматическое управление драйверами, если хотим использовать WebDriverManager
+        // Configuration.driverManagerEnabled = false;
+
+        // Интеграция с Allure
         SelenideLogger.addListener("AllureSelenide", new AllureSelenide()
                 .screenshots(true)
                 .savePageSource(true));
     }
 
-    /**
-     * Очистка Allure после всех тестов.
-     */
+
+
     @AfterAll
     static void tearDownAllureReporting() {
         SelenideLogger.removeListener("allure");
@@ -39,10 +45,10 @@ public class TestBaseUI {
      * Очистка тестовых данных после каждого теста.
      * Гарантирует изолированность тестовых сценариев.
      */
-    @AfterEach
-    void cleanDatabase() {
-        SQL.cleanDatabase();
-    }
+//    @AfterEach
+//    void cleanDatabase() {
+//        SQL.cleanDatabase();
+//    }
 
     /**
      * Настройка тестового окружения перед каждым тестом.

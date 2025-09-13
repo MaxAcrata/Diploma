@@ -36,7 +36,7 @@ public class PaySqlRequestTest extends TestBaseUI {
         paymentPage.fillCardData(Data.APPROVED_CARD);
         paymentPage.verifySuccess();
 
-        verifyCreditRequestStatus("APPROVED", currentDb);
+        verifyPayRequestStatus("APPROVED", currentDb);
     }
 
     /**
@@ -52,7 +52,7 @@ public class PaySqlRequestTest extends TestBaseUI {
         paymentPage.fillCardData(Data.DECLINED_CARD);
         paymentPage.verifyFailure();
 
-        verifyCreditRequestStatus("DECLINED", currentDb);
+        verifyPayRequestStatus("DECLINED", currentDb);
     }
 
     /**
