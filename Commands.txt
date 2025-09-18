@@ -3,15 +3,15 @@ http://localhost:8080/ - Url страницы
 
 java -jar ./artifacts/aqa-shop.jar --spring.profiles.active=postgres - Запуск с postgres
 gradlew test -Ddb=postgres --tests "*CreditPayHappyPathTest*"
-
+-------------------------------------------------------------------------------------------
 java -jar ./artifacts/aqa-shop.jar --spring.profiles.active=mysql - Запуск с mysql
 gradlew test -Ddb=mysql --tests "*CreditPaySqlRequestTest*"
 _________________________________________________________________________________
 gradlew clean test --tests "*CreditPayCardholderFieldTest*" запуск всех тестов с класса
 
 docker compose exec mysql mysql -u app -p   - Вход в базу mysql
-
-docker-compose exec mysql mysql -u root -proot  Вход с root
+Вход с root
+docker-compose exec mysql mysql -u root -proot
 # Или внутри MySQL:
 SHOW DATABASES;
 USE app;
@@ -19,12 +19,11 @@ SHOW TABLES;
 SELECT * FROM credit_request_entity;  -- Запрос к конкретной таблице
 
 ___________________________________________________________________________________________
-
-docker compose exec postgres psql -U app -d app  - Вход в базу Postgres
-
-\l   -- Короткий аналог MySQL-шного SHOW DATABASES
-\c your_database_name  -- Подключиться к конкретной БД (аналог USE в MySQL)
-\dt  -- Список таблиц (аналог SHOW TABLES в MySQL)
+- Вход в базу Postgres
+docker compose exec postgres psql -U app -d app
+\l
+\c app
+\dt
 SELECT * FROM credit_request_entity;
 
-gradlew allureReport - Allure reports
+gradlew allureReport --clean  Allure reports

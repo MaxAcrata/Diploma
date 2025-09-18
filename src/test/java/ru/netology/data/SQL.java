@@ -7,6 +7,7 @@ import org.apache.commons.dbutils.handlers.ScalarHandler;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Locale;
 
 public class SQL {
 
@@ -14,145 +15,82 @@ public class SQL {
         POSTGRES, MYSQL
     }
 
-    private static Connection getConnection(DbType db) throws SQLException {
-        String url, user, password;
-
-        switch (db) {
-            case POSTGRES:
-                url = "jdbc:postgresql://localhost:5432/app";
-                user = "app";
-                password = "pass";
-                break;
-            case MYSQL:
-                url = "jdbc:mysql://localhost:3306/app";
-                user = "app";
-                password = "pass";
-                break;
+    /**
+     * Определяет текущую БД по системному свойству db.type
+     */
+    public static DbType getCurrentDb() {
+        String dbTypeProp = System.getProperty("db.type", "mysql").toLowerCase(Locale.ROOT);
+        switch (dbTypeProp) {
+            case "postgres":
+                return DbType.POSTGRES;
+            case "mysql":
             default:
-                throw new IllegalArgumentException("Неизвестный тип БД: " + db);
+                return DbType.MYSQL;
+        }
+    }
+
+    /**
+     * Возвращает Connection к текущей БД
+     */
+    private static Connection getConnection() throws SQLException {
+        String url = System.getProperty("db.url");
+        String user = System.getProperty("db.user");
+        String password = System.getProperty("db.password");
+
+        if (url == null || user == null || password == null) {
+            throw new IllegalStateException("DB connection properties are not set. " +
+                    "Please pass -Ddb.url, -Ddb.user, -Ddb.password");
         }
 
         return DriverManager.getConnection(url, user, password);
     }
 
+    /**
+     * Получает последний статус кредитной заявки
+     */
+    public static String getCardStatusForCreditRequest() {
+        val query = "SELECT status FROM credit_request_entity ORDER BY created DESC LIMIT 1;";
+        try (val conn = getConnection();
+             val stmt = conn.prepareStatement(query);
+             val rs = stmt.executeQuery()) {
 
-    public static String getCardStatusForCreditRequest(DbType db) {
-        val query = "SELECT status FROM credit_request_entity ORDER BY created DESC LIMIT 1";
-        try (
-                val conn = getConnection(db);
-                val stmt = conn.prepareStatement(query);
-                val rs = stmt.executeQuery()
-        ) {
             if (rs.next()) {
                 val status = rs.getString("status");
-                System.out.println("[DEBUG] Получен статус из " + db + ": " + status);
+                System.out.println("[DEBUG] Получен статус из " + getCurrentDb() + ": " + status);
                 return status;
             } else {
-                throw new RuntimeException("В таблице credit_request_entity нет записей для " + db);
+                throw new RuntimeException("В таблице credit_request_entity нет записей для " + getCurrentDb());
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Ошибка при получении статуса из БД " + db, e);
+            throw new RuntimeException("Ошибка при получении статуса из БД " + getCurrentDb(), e);
         }
     }
 
-//    public static String getBankId(DbType db) {
-//        val query = "SELECT bank_id FROM credit_request_entity ORDER BY created DESC LIMIT 1";
-//        val runner = new QueryRunner();
-//
-//        try (val conn = getConnection(db)) {
-//            return runner.query(conn, query, new ScalarHandler<>());
-//        } catch (SQLException e) {
-//            throw new RuntimeException("Ошибка при получении bank_id из БД " + db, e);
-//        }
-//    }
-//
-//    public static String getPaymentIdForCreditRequest(DbType db) {
-//        val query = "SELECT payment_id FROM credit_request_entity ORDER BY created DESC LIMIT 1";
-//        val runner = new QueryRunner();
-//
-//        try (val conn = getConnection(db)) {
-//            return runner.query(conn, query, new ScalarHandler<>());
-//        } catch (SQLException e) {
-//            throw new RuntimeException("Ошибка при получении payment_id из БД " + db, e);
-//        }
-//    }
-
-    public static String getCardStatusForPayment(DbType db) {
-        val query = "SELECT status FROM payment_entity ORDER BY created DESC LIMIT 1";
+    /**
+     * Получает последний статус платежа
+     */
+    public static String getCardStatusForPayment() {
+        val query = "SELECT status FROM payment_entity ORDER BY created DESC LIMIT 1;";
         val runner = new QueryRunner();
-        try (val conn = getConnection(db)) {
+        try (val conn = getConnection()) {
             return runner.query(conn, query, new ScalarHandler<>());
         } catch (SQLException e) {
-            throw new RuntimeException("Ошибка при получении статуса оплаты из БД: " + db, e);
+            throw new RuntimeException("Ошибка при получении статуса оплаты из БД: " + getCurrentDb(), e);
         }
     }
 
+    /**
+     * Очистка тестовой БД
+     */
     public static void cleanDatabase() {
-        for (DbType db : DbType.values()) {
-            try (val conn = getConnection(db)) {
-                val runner = new QueryRunner();
-
-                runner.update(conn, "DELETE FROM credit_request_entity");
-                runner.update(conn, "DELETE FROM order_entity");
-                runner.update(conn, "DELETE FROM payment_entity");
-            } catch (SQLException e) {
-                System.out.println("Ошибка очистки базы " + db + ": " + e.getMessage());
-            }
-        }
-    }
-
-    // Получить amount из payment_entity
-    public static String getAmountPayment(DbType db) {
-        val query = "SELECT amount FROM payment_entity ORDER BY created DESC LIMIT 1";
-        try (
-                val conn = getConnection(db);
-                val stmt = conn.prepareStatement(query)
-        ) {
-            try (val rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getString("amount");
-                }
-            }
+        try (val conn = getConnection()) {
+            val runner = new QueryRunner();
+            runner.update(conn, "DELETE FROM credit_request_entity");
+            runner.update(conn, "DELETE FROM order_entity");
+            runner.update(conn, "DELETE FROM payment_entity");
+            System.out.println("[DEBUG] База " + getCurrentDb() + " очищена");
         } catch (SQLException e) {
-            throw new RuntimeException("Ошибка при получении amount из " + db, e);
+            System.out.println("Ошибка очистки базы " + getCurrentDb() + ": " + e.getMessage());
         }
-        return null;
     }
-
-    // Получить transaction_id из payment_entity
-    public static String getTransactionId(DbType db) {
-        val query = "SELECT transaction_id FROM payment_entity ORDER BY created DESC LIMIT 1";
-        try (
-                val conn = getConnection(db);
-                val stmt = conn.prepareStatement(query)
-        ) {
-            try (val rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getString("transaction_id");
-                }
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Ошибка при получении transaction_id из " + db, e);
-        }
-        return null;
-    }
-
-    // Получить payment_id из order_entity
-    public static String getPaymentIdForCardPay(DbType db) {
-        val query = "SELECT payment_id FROM order_entity ORDER BY created DESC LIMIT 1";
-        try (
-                val conn = getConnection(db);
-                val stmt = conn.prepareStatement(query)
-        ) {
-            try (val rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getString("payment_id");
-                }
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Ошибка при получении payment_id из order_entity для " + db, e);
-        }
-        return null;
-    }
-
 }

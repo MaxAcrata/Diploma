@@ -1,8 +1,8 @@
 // Плагины проекта
 plugins {
     id 'java'
-    id "io.freefair.lombok" version "8.13.1"       // Lombok для генерации boilerplate-кода
-    id "io.qameta.allure" version "2.11.2"       // Плагин Allure
+    id "io.freefair.lombok" version "8.13.1"   // Lombok для генерации boilerplate-кода
+    id "io.qameta.allure" version "2.11.2"     // Плагин Allure
 }
 
 // Настройки проекта
@@ -54,14 +54,24 @@ dependencies {
 test {
     useJUnitPlatform()
 
-    // Системные свойства для Selenide
+    // Selenide
     systemProperty 'selenide.headless', System.getProperty('selenide.headless', 'true')
 
-    // Настройки подключения к БД (по умолчанию)
-    systemProperty 'db.url', System.getProperty('db.url', "jdbc:mysql://localhost:3306/app")
-    systemProperty 'db.postgres.url', System.getProperty('db.postgres.url', "jdbc:postgresql://localhost:5432/app")
+    // Универсальные настройки подключения к БД
+    def dbType = System.getProperty('db.type', 'mysql') // дефолт — mysql
+    systemProperty 'db.type', dbType
 
-    // Настройки Chrome
+    if (dbType == 'postgres') {
+        systemProperty 'db.url', System.getProperty('db.url', 'jdbc:postgresql://localhost:5432/app')
+        systemProperty 'db.user', System.getProperty('db.user', 'app')
+        systemProperty 'db.password', System.getProperty('db.password', 'pass')
+    } else { // mysql по умолчанию
+        systemProperty 'db.url', System.getProperty('db.url', 'jdbc:mysql://localhost:3306/app')
+        systemProperty 'db.user', System.getProperty('db.user', 'app')
+        systemProperty 'db.password', System.getProperty('db.password', 'pass')
+    }
+
+    // Chrome options
     systemProperty 'chromeoptions.prefs', System.getProperty('chromeoptions.prefs',
             "profile.password_manager_leak_detection=false")
 }

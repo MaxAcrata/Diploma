@@ -25,8 +25,6 @@ public class TestBaseUI {
         Configuration.timeout = 10000;
         Configuration.pageLoadTimeout = 15000;
 
-        // Отключаем автоматическое управление драйверами, если хотим использовать WebDriverManager
-        // Configuration.driverManagerEnabled = false;
 
         // Интеграция с Allure
         SelenideLogger.addListener("AllureSelenide", new AllureSelenide()
@@ -45,10 +43,10 @@ public class TestBaseUI {
      * Очистка тестовых данных после каждого теста.
      * Гарантирует изолированность тестовых сценариев.
      */
-//    @AfterEach
-//    void cleanDatabase() {
-//        SQL.cleanDatabase();
-//    }
+    @AfterEach
+    void cleanDatabase() {
+        SQL.cleanDatabase();
+    }
 
     /**
      * Настройка тестового окружения перед каждым тестом.
