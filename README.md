@@ -60,7 +60,7 @@
 - **Lombok** – сокращение шаблонного кода.  
 - **Docker** – изоляция окружения.    
 - **Git** – контроль версий.
-- [Инструкция по запуску локальной формы](https://github.com/MaxAcrata/Diploma/blob/main/Instructions.md)
+- [Инструкция по запуску локальной формы](https://github.com/MaxAcrata/Diploma/blob/main/Documents/Instructions.md)
 
 ---
 
