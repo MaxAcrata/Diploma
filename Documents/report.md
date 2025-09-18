@@ -1,7 +1,8 @@
 # Отчёт о тестировании 
 
 ## Запуск с БД MySQL
-![alt text](image.png)
+<img width="1429" height="940" alt="image" src="https://github.com/user-attachments/assets/2ce2e31e-1480-42f8-8ca0-f5051fda7591" />
+
 
 ## Общая информация
 - **Время выполнения:** 5м 20с  
@@ -44,7 +45,8 @@
 
 Запуск с БД PostgreSQL
 
-![alt text](image-1.png)
+<img width="1153" height="753" alt="image" src="https://github.com/user-attachments/assets/cf5de958-e1fe-4f1a-a801-97fad54070d0" />
+
 
 ## Общая информация
 - **Время выполнения:** 5м 13с  
